@@ -1,0 +1,38 @@
+name: PR job
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on push
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository
+      - uses: actions/checkout@v2
+      # Configures the Java 1.8 JDK
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Run Lint
+        run: ./gradlew lint
+
+      - name: Run unit tests
+        run: ./gradlew test
+
+      - name: Run instrumented tests
+        uses: ReactiveCircus/android-emulator-runner@v2.13.0
+        with:
+          api-level: 29
+          script: ./gradlew connectedAndroidTest
+
+      - name: Build
+        run: ./gradlew build
